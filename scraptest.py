@@ -1,55 +1,55 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 29 09:25:14 2020
+from urllib.request import urlopen
+from time import sleep
+import re, os, http.client
+import webbrowser
+ODSurl = ["https://www.ods.org.hn/index.php/informes/costes-marginales/costosmarginales2019"
+          ]
+#List of webpages to search
+Meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
+#This will order the month list to correspond the ODS links.
+meses = []
+for l in ODSurl:
+    for m in Meses:
+        if m.lower() in l:
+            meses.append(m)
 
-@author: serw1
-"""
-
-ODSurl = ["https://www.ods.org.hn/index.php/informes/costes-marginales/2020/mayo",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/junio",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/julio",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/agosto",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/septiembre",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/octubre-cm20",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/noviembre-cm20",
-          "https://www.ods.org.hn/index.php/informes/costes-marginales/2020/diciembrecostosm2020"]
-meses = ["May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
-exurl = "http://www.pythonscraping.com/exercises/exercise1.html"
+#Defines download, repository, and browser's directory
 brow = r"C:\\Users\\serw1\\AppData\\Local\\Programs\\Opera\\launcher.exe"
 downpath = "C:/Users/serw1/Downloads"
-datapath = "C:/Users/serw1/Desktop/Documents/Work/ODS Price analysis\Data"
-#Desired urls
-from urllib.request import urlopen
-from urllib.request import urlretrieve, URLopener
-from time import sleep
-import re, os, requests, http.client, shutil
-import webbrowser
+scrippath = os.getcwd().replace("\\","/")
+pdfpath = scrippath+"/Data/DailyReports"
+excelpath = scrippath+"/Data"
+filetype = ".xlsx"
 
-http.client.HTTPConnection._http_vsn = 10
-http.client.HTTPConnection._http_vsn_str = 'HTTP/1.0'
-headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-    }
-for url, mes in zip(ODSurl, meses):
-    
+# Location of download files and storage 
+for url, mes in zip(ODSurl,meses):
     page = urlopen(url)
     html_bytes = page.read()
     html = html_bytes.decode("utf-8")
-    data = re.findall("href=.*?.xlsx",html)
+    data = re.findall("href=.*?"+filetype,html)
+    data[0] = data[0][len(data[0])-len(data[1]):len(data[0])] 
     webbrowser.register("opera", None,webbrowser.BackgroundBrowser(brow))
     op  =  webbrowser.get("opera")
-    k = 1
     print("Iniciando mes de "+mes+". Total de archivos: "+str(len(data)))
     for l in data:
+        date = l[len(l)-11:-5]
+        day= date[0:2]
+        yr = date[4:6]
         links = (l[l.find("http"):len(l)])
-        fileloc = downpath+"/"+links[links.find("Precios"):len(links)]
-        fileout = "CM_"+mes+"20_S"+str(k)+".xlsx"
-        outloc = datapath+"/"+fileout
-        print("Downloading file : "+links[links.find("Precios"):len(links)])
+        fileloc = downpath+"/"+links[links.find("Predespacho"):len(links)]
+        fileout = "CM_"+mes+str(yr)+"_S"+str(day)+filetype
+        outloc = excelpath+"/"+fileout
+        print("Downloading file : "+links[links.find("Predespacho"):len(links)])
         op.open_new_tab(links)
-        sleep(3)
+        sleep(9)
         print("Moving and renaming : "+fileout)
-        os.rename(fileloc,outloc)
-        sleep(2)
-        print("File Completed")
-        k=k+1
+        try:
+            os.rename(fileloc,outloc)
+        except FileNotFoundError:
+            print("File not found in downloads")
+            pass
+        except FileExistsError:
+            print("File already on directory - deleting file.")
+            os.remove(fileloc)     
+        print("Operation Completed")
