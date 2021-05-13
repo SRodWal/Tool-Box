@@ -8,11 +8,11 @@ Mantain at easy access a multipurpuse solutions. Webscraping, file manipulation,
 
 1. append_df_excel:
 
-    a. Inputs: DataFrame, excel filename, sheet name in excel.
+        a. Inputs: DataFrame, excel filename, sheet name in excel.
 
-    b. Outputs: An excel file with a imported data.
+        b. Outputs: An excel file with a imported data.
 
-    c. Possible upgrades: Accepting multiple dataframes and sheets. Benefits: Saves cuts time for opening the excel file.
+        c. Possible upgrades: Accepting multiple dataframes and sheets. Benefits: Saves cuts time for opening the excel file.
 
 
 2. DistributionFitting:
@@ -20,5 +20,6 @@ Mantain at easy access a multipurpuse solutions. Webscraping, file manipulation,
     Scipy has over 90 possible continuous distributions (norm, skewnorm, burr, etc.) 
     
         a. Imputs: A data set, dataframe of array.
+        
         b. Outputs: Indicates the must probable distribution density that fits the data set.
         
