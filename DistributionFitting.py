@@ -5,7 +5,10 @@ import dateutil # Nos ayuda a agregat meses al datetime
 import seaborn as sb
 import matplotlib.pyplot as plt
 import scipy # Ayuda a crear distribuciones y arreglos
+import warnings
+from math import sqrt
 
+warnings.filterwarnings("ignore")
 def monthNum(num):
     return {1 : "Jan", 2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10: "Oct",11:"Nov",12:"Dec"}[num]
 
@@ -58,12 +61,16 @@ plt.figure(num = 1, figsize = (6,4))
 [sb.kdeplot(dft[name]) for name in dft.columns]
 plt.legend(dft.columns)
 plt.show()
-# Crear distribuciones
+##### Crear distribuciones
 variables = cols[1:7]
+#Lista de distribuciones a utilizar
 disttype = ['alpha','anglit','arcsine','beta','betaprime','bradford','burr','burr12','cauchy','chi','chi2','cosine','dgamma','dweibull','erlang','expon','exponnorm','exponweib','exponpow','f','fatiguelife','fisk','foldcauchy','foldnorm','frechet_r','frechet_l','genlogistic','genpareto','gennorm','genexpon','genextreme','gausshyper','gamma','gengamma','genhalflogistic','gilbrat','gompertz','gumbel_r','gumbel_l','halfcauchy','halflogistic','halfnorm','halfgennorm','hypsecant','invgamma','invgauss','invweibull','johnsonsb','johnsonsu','kstwobign','laplace','levy','levy_l','logistic','loggamma','loglaplace','lognorm','lomax','maxwell','mielke','nakagami','ncx2','ncf','nct','norm','pareto','pearson3','powerlaw','powerlognorm','powernorm','rdist','reciprocal','rayleigh','rice','recipinvgauss','semicircular','t','triang','truncexpon','truncnorm','tukeylambda','uniform','wald','weibull_min','weibull_max']
+Ndist = 5 # Numero de distribuciones mas probables
 legend = disttype+["Data-Hist"]
-x = np.linspace(-40,40,100) # Rango de cambios porcentuales
+x = np.linspace(-25,25,100) # Rango de cambios porcentuales
 
+# Esta funcion crea las distribuciones con los parametros y tipo de distribucion de entrada
+# DistributionFit = probadensityfun( distribution type - string, linespace - list, parameters - list )
 def probadensityfun(dtype,x,stats):
     fit = getattr(scipy.stats,dtype).pdf
     if len(stats)==2:
@@ -78,8 +85,13 @@ def probadensityfun(dtype,x,stats):
         distfit = fit(x, stats[0], stats[1], stats[2], stats[3], stats[4],stats[5])
     return distfit 
    
+### Para cada data set (variable):
+# Se desplega el histograma
+# calculan los parametros para cada tipo de distribucion (stats by disttype).
+# Se crea una densidad de distribucion son los parametros
+# Se calcula la relevancia estadistica de la distribucion utilzando el test de Kolmogorov–Smirnov   
 for n, name in zip(range(0, len(variables)), variables):
-    plt.figure(num = n, figsize = (8,6))
+    plt.figure(num = n, figsize = (6,5), dpi = 350)
     sb.histplot(dft[name], stat = "density", alpha = 0.5)
     plt.title(name)
     
@@ -92,11 +104,13 @@ for n, name in zip(range(0, len(variables)), variables):
         res.append((dtype, kstest[0],kstest[1],distfits[-1]))
     res.sort(key=lambda x:float(x[2]), reverse=True)
     print("*------------------ Data Type: "+name+" ------------------*")
-    
-    for j in res[0:10]:
+    print("Valor Critico Dn: "+str(1.07275/sqrt(len(dft))))
+    for j in res[0:Ndist]:
         print("{}: statistic={}, pvalue={}".format(j[0], j[1], j[2]))
-    [plt.plot(x,den[3]) for den in res[0:10]]
-    plt.legend([f[0] for f in res[0:10] ])
+    [plt.plot(x,den[3]) for den in res[0:Ndist]]
+    plt.legend([f[0] for f in res[0:Ndist] ]+["Data-Hist"])
+    plt.xlabel("Cambio porcentual trimestral [%]")
+    plt.ylabel("Densidad de probabilidad")
     plt.show() 
       
       
