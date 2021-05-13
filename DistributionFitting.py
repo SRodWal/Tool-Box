@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 27 19:50:49 2021
 
-@author: serw1
-"""
-def monthNum(num):
-    return {1 : "Jan", 2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10: "Oct",11:"Nov",12:"Dec"}[num]
- 
 import datetime
 import pandas as pd
 import numpy as np
@@ -18,7 +11,7 @@ import zipfile
 import scipy
 
 from playsound import playsound # Just for fun
-
+### Given a data set
 data = [ ["May de 2016",	1.4588,	3.6051,	3.9370,	2.3989,	2.2441], 
         ["July de 2016",	1.4588,	3.6051,	3.9370,	2.3989,	2.2441],
         ["November de 2016",	1.4911,	3.6848,	4.0315,	2.4603,	2.2961],
